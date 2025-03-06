@@ -2,7 +2,7 @@
 
 These are some of the steps I took to connect with the Amarel cluster and use GPUs to run ML task. In this particular example, I wanted to run my python code on Jupyter Notebook but in my local machine
 
-Prerequiste: A virtual environment with jupyter, torch and other necessary packages should be setup in the cluster. This will be used later to launch the jupyter notebook.
+Prerequisite: A virtual environment with jupyter, torch and other necessary packages should be setup in the cluster. This will be used later to launch the jupyter notebook.
 
 ## Step 1: Connect to the Cluster
 ```bash

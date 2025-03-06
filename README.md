@@ -22,5 +22,3 @@ The project will utilize a variety of datasets for training and evaluation, incl
 •⁠  ⁠Naimish Sharma <br>
 •⁠  ⁠Gaurav Shetty <br>
 
-## Repository Link
-•⁠  ⁠https://github.com/gauravshetty98/Custom-loss-function-creation-using-meta-learning/

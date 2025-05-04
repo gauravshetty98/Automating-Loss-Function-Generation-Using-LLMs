@@ -83,6 +83,11 @@ We're analyzing how variations in task descriptions influence the generated loss
 * **Error Classifier**: Diagnoses test failures and identifies the correction target.
 * **Executor**: Dynamically loads, executes, and evaluates generated Python modules.
 
+### 🗺️ Internal Component Flow
+
+![UML Diagram](docs/uml_diagram.png)
+
+
 ---
 
 ## 🧰 Technologies & Frameworks

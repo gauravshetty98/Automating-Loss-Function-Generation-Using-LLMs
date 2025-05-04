@@ -36,19 +36,6 @@ class Rubick:
         )
 
 
-        # look up survey | add extra info
-        self.test_generation_message = (
-            "You are an AI agent tasked with writing a unit test in Python to validate a PyTorch-compatible loss function class.\n\n"
-            "You will be given the code of the loss function, write a python unit test code to check if the function is running without any error.\n"
-            "Instructions:\n"
-            "- Write **only** valid Python code. No explanations, comments, or extra text.\n"
-            "- Wrap the code **inside** a ```python``` code block.\n"
-            "- Import **only** necessary PyTorch libraries.\n"
-            "- Do **not** import unused packages or modules.\n"
-            "- Ensure the test runs independently.\n"
-            "- If unsure, leave the code minimal but runnable.\n\n"
-        )
-
 
         #test classification
         self.error_classification_message = (
@@ -69,41 +56,6 @@ class Rubick:
             "{error_output}\n\n"
             "### Classification:\n"
         )
-
-
-    def _write_file(self, path, content):
-        with open(path, "w") as f:
-            f.write(content)
-    
-    def _classify_error(self, loss_code, test_code, error_output):
-        classification_prompt = self.error_classification_message.format(
-            loss_code=loss_code,
-            test_code=test_code,
-            error_output=error_output
-        )
-        
-        classification = self.generate_response(classification_prompt, max_length=20, temperature=0.1)
-        classification = classification.split("### Classification:\n")[-1].strip().lower()
-        print("\n Rubick found an error and says the error is in:", classification,"-", type(classification))
-        if classification in ["loss", "test", "unknown"]:
-            return classification
-        else:
-            # Fallback to manual rules if model output is invalid
-            if "AutoLoss" in error_output or "TypeError" in error_output or "AttributeError" in error_output:
-                return "loss"
-            if "AssertionError" in error_output or "FAILED" in error_output:
-                return "test"
-            return "unknown"
-
-    def check_python_tag(self, response):
-        code_blocks = re.findall(r"```python(.*?)```", response, re.DOTALL) # check response if contains no code
-        if code_blocks:
-            status = True
-        else:
-            print("Code blocks not properly formatted or not found in LLM response\n")
-            status = False
-        return status    
-            
 
     def _build_test_generation_prompt(self, loss_code):
         return (
@@ -159,6 +111,40 @@ class Rubick:
             f"{error_output}\n\n"
             "### Response - Write the corrected Unit Test Code inside ```python``` block:\n"
         )
+
+
+    def _write_file(self, path, content):
+        with open(path, "w") as f:
+            f.write(content)
+    
+    def _classify_error(self, loss_code, test_code, error_output):
+        classification_prompt = self.error_classification_message.format(
+            loss_code=loss_code,
+            test_code=test_code,
+            error_output=error_output
+        )
+        
+        classification = self.generate_response(classification_prompt, max_length=20, temperature=0.1)
+        classification = classification.split("### Classification:\n")[-1].strip().lower()
+        print("\n Rubick found an error and says the error is in:", classification,"-", type(classification))
+        if classification in ["loss", "test", "unknown"]:
+            return classification
+        else:
+            # Fallback to manual rules if model output is invalid
+            if "AutoLoss" in error_output or "TypeError" in error_output or "AttributeError" in error_output:
+                return "loss"
+            if "AssertionError" in error_output or "FAILED" in error_output:
+                return "test"
+            return "unknown"
+
+    def check_python_tag(self, response):
+        code_blocks = re.findall(r"```python(.*?)```", response, re.DOTALL) # check response if contains no code
+        if code_blocks:
+            status = True
+        else:
+            print("Code blocks not properly formatted or not found in LLM response\n")
+            status = False
+        return status    
 
 
     
@@ -344,8 +330,8 @@ class Rubick:
             
                     elif fix_target == "test":
                         print("[Fixing Unit Test]")
-                        self.test_generation_message = self._build_test_fix_prompt(loss_code, test_code, error_output)
-                        test_code, test_imp = self.generate_code(self.test_generation_message)
+                        test_generation_message = self._build_test_fix_prompt(loss_code, test_code, error_output)
+                        test_code, test_imp = self.generate_code(test_generation_message)
                         test_code = f"from temp_code import AutoLoss\n\n{test_code}"
                         self._write_file("temp_gen/temp_test.py", test_code)
             
